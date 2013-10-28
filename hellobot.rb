@@ -10,7 +10,7 @@ class SearchBot
 
   def initialize(server = nil)
     @nick = "SearchBot"
-    @channel = "#bitmaker"
+    @channel = "#dogs"
     @serverconnect = server
     @port=6667
     @greeting_prefix = "privmsg #bitmaker :"
@@ -30,9 +30,9 @@ class SearchBot
   end
 
     def respond(msg)
-      puts msg
       paragraph=getdocument(msg)
-      @server.puts "PRIVMSG #{@channel} :#{paragraph}"
+      @server.puts "PRIVMSG #{@channel} :#{paragraph}" if paragraph
+      @server.puts "PRIVMSG #{@channel} :Sorry didn't work!" if !paragraph
       
 
     end
@@ -41,9 +41,8 @@ class SearchBot
     def getdocument(msg)
       val=msg.split(" ")
       klass=val[0].capitalize
-      klass="String"
       begin
-        doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/String.html"))
+        doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
       rescue OpenURI::HTTPError => e 
         if e.message =="404 Not Found"
           until @server.eof? do
@@ -53,13 +52,16 @@ class SearchBot
           raise e
         end
       end
-      word=(val[1])+"-method"
-      doc.css("div#{val} p")[0]
+      value=val[1]+"-method"
+      wordindoc?(doc,val)
+      answer=doc.css("div\##{value} p")[0]
+      @server.puts "PRIVMSG #{@channel} :#{answer}"
+      answer
     end
 
     def wordindoc?(doc, val)
-      val=val+"-method"
-      return doc.css("div#{val} p")[0]
+      val=val[1]+"-method"
+      doc.css("div\##{val} p")[0]
     end
 end
 
