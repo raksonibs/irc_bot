@@ -5,18 +5,17 @@ require "socket"
 require 'nokogiri'
 require 'net/http'
 require 'open-uri'
-require 'debugger'
 
 class SearchBot
 
   def initialize(server = nil)
     @nick = "SearchBot"
-    @channel = "#bitmaker"
+    @channel = "#birds"
     @serverconnect = server
     @port=6667
     @greeting_prefix = "privmsg #bitmaker :"
   end
-  #xml near match look at->
+
   def start
     @server=TCPSocket.open(@serverconnect,@port)
     @server.puts "USER bhellobot 0 * BHelloBot"
@@ -31,46 +30,33 @@ class SearchBot
   end
 
     def respond(msg)
-      p msg
-  
       paragraph=getdocument(msg)
-      #p paragraph
-      #@server.puts "PRIVMSG #{@channel} :#{paragraph}"
+      @server.puts "PRIVMSG #{@channel} :#{paragraph}" if paragraph
+      @server.puts "PRIVMSG #{@channel} :Sorry didn't work!" if !paragraph
+      
 
-      #@server.puts "PRIVMSG #{@channel} :#{paragraph}" if (paragraph)
-      #@server.puts "PRIVMSG #{@channel} :Sorry didn't work!" if !paragraph
     end
 
     #word in document
     def getdocument(msg)
-
-      if msg.match(/upto/)
-        p "hello"
-      
-        val=msg.split(" ")
-        klass=val[0].capitalize
-        klass="String" #temporary fix for al input coming in
+      val=msg.split(" ")
+      klass=val[0].capitalize
+      begin
         doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
-        p doc
-        # begin
-        #   doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
-        # rescue OpenURI::HTTPError => e 
-        #   if e.message =="404 Not Found"
-        #     until @server.eof? do
-        #       respond @server.gets.downcase
-        #     end
-        #   else
-        #     raise e
-        #   end
-        # end
-
-        value=val[1]+"-method"
-        value="upto-method"
-
-        answer=doc.css("div\##{value} p")[0]
-        #answer
-        puts answer
+      rescue OpenURI::HTTPError => e 
+        if e.message =="404 Not Found"
+          until @server.eof? do
+            respond @server.gets.downcase
+          end
+       else
+          raise e
+        end
       end
+      value=val[1]+"-method"
+      wordindoc?(doc,val)
+      answer=doc.css("div\##{value} p")[0]
+      @server.puts "PRIVMSG #{@channel} :#{answer}"
+      answer
     end
 
     def wordindoc?(doc, val)
