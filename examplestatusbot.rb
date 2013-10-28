@@ -6,7 +6,6 @@ require 'curb'
 require 'json'
 
 class StatusBot
-
   def initialize(server = nil)
     @nick = "BitMakers_StatusBot"
     @channel = "#bitmaker"
