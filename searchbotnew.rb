@@ -34,43 +34,41 @@ class SearchBot
       p msg
   
       paragraph=getdocument(msg)
-      #p paragraph
-      #@server.puts "PRIVMSG #{@channel} :#{paragraph}"
+      puts paragraph
 
-      #@server.puts "PRIVMSG #{@channel} :#{paragraph}" if (paragraph)
+      @server.puts "PRIVMSG #{@channel} :#{paragraph}" if (paragraph)
       #@server.puts "PRIVMSG #{@channel} :Sorry didn't work!" if !paragraph
     end
 
     #word in document
     def getdocument(msg)
+        if msg.match(/Hash/) || msg.match(/String/) || msg.match(/Enumerable/) || msg.match(/Array/) ||
 
-      if msg.match(/upto/)
-        p "hello"
+        
+          val=msg.split(" ")
+          klass=val[0].capitalize
+          klass="String" #temporary fix for al input coming in
+          doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
+          # begin
+          #   doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
+          # rescue OpenURI::HTTPError => e 
+          #   if e.message =="404 Not Found"
+          #     until @server.eof? do
+          #       respond @server.gets.downcase
+          #     end
+          #   else
+          #     raise e
+          #   end
+          # end
+
+          value=val[1]+"-method"
+          value="upto-method"
+
+          answer=doc.css("div\##{value} p")[0]
+          answer
+
+        end
       
-        val=msg.split(" ")
-        klass=val[0].capitalize
-        klass="String" #temporary fix for al input coming in
-        doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
-        p doc
-        # begin
-        #   doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
-        # rescue OpenURI::HTTPError => e 
-        #   if e.message =="404 Not Found"
-        #     until @server.eof? do
-        #       respond @server.gets.downcase
-        #     end
-        #   else
-        #     raise e
-        #   end
-        # end
-
-        value=val[1]+"-method"
-        value="upto-method"
-
-        answer=doc.css("div\##{value} p")[0]
-        #answer
-        puts answer
-      end
     end
 
     def wordindoc?(doc, val)
