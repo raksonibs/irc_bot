@@ -13,9 +13,17 @@ require 'net/http'
 require 'open-uri'
 
 #source = Net::HTTP.get(URI.parse('http://ruby-doc.org/core-2.0.0/String.html'))
+klass="String"
+begin
+	doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
+rescue OpenURI::HTTPError => e 
+	if e.message =="404 Not Found"
+		doc=Nokogiri::HTML(open('http://ruby-doc.org/core-2.0.0/String.html'))
+	else
+		raise e
+	end
+end
 
-
-doc=Nokogiri::HTML(open('http://ruby-doc.org/core-2.0.0/String.html'))
 #puts doc
 puts doc.css("div#upto-method p")[0]
 #p doc.xpath(/title).text
