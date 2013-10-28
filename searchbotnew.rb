@@ -15,6 +15,7 @@ class SearchBot
     @serverconnect = server
     @port=6667
     @greeting_prefix = "privmsg #bitmaker :"
+    @match=false
   end
   #xml near match look at->
   def start
@@ -31,38 +32,38 @@ class SearchBot
   end
 
     def respond(msg)
-      p msg
+      puts msg
   
       paragraph=getdocument(msg)
-      puts paragraph
+      para=paragraph.text.gsub("\n", " ") unless paragraph==nil
 
-      @server.puts "PRIVMSG #{@channel} :#{paragraph}" if (paragraph)
+      if (paragraph)
+        @server.puts "PRIVMSG #{@channel} :#{para}" 
+        @match= true
+      end
       #@server.puts "PRIVMSG #{@channel} :Sorry didn't work!" if !paragraph
     end
 
     #word in document
     def getdocument(msg)
-        if msg.match(/Hash/) || msg.match(/String/) || msg.match(/Enumerable/) || msg.match(/Array/) ||
+        if (msg.match(/Hash/i) || msg.match(/String/i) || msg.match(/Enumerable/i) || msg.match(/Array/i) )
 
         
           val=msg.split(" ")
-          klass=val[0].capitalize
-          klass="String" #temporary fix for al input coming in
+          klass=val[-2].to_s.capitalize.gsub(":", "").capitalize
           doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
-          # begin
-          #   doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
-          # rescue OpenURI::HTTPError => e 
-          #   if e.message =="404 Not Found"
-          #     until @server.eof? do
-          #       respond @server.gets.downcase
-          #     end
-          #   else
-          #     raise e
-          #   end
-          # end
+          begin
+             doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
+          rescue OpenURI::HTTPError => e 
+              if e.message =="404 Not Found"
+                @server.puts "Error in typing."
+              else
+                raise e
+             end
+          end
 
-          value=val[1]+"-method"
-          value="upto-method"
+          value=((val[-1]).downcase)+"-method"
+
 
           answer=doc.css("div\##{value} p")[0]
           answer

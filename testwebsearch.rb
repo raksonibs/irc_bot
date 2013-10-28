@@ -71,7 +71,8 @@ class SearchBot
 end
 
 bot= SearchBot.new()
-bot.respond("String upto")
+val=gets.chomp
+bot.respond(val)
 
 
 
