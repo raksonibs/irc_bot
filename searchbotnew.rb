@@ -11,7 +11,7 @@ class SearchBot
 
   def initialize(server = nil)
     @nick = "SearchBot"
-    @channel = "#bitmaker"
+    @channel = "#birds"
     @serverconnect = server
     @port=6667
     @greeting_prefix = "privmsg #bitmaker :"
@@ -40,12 +40,15 @@ class SearchBot
       if (paragraph)
         @server.puts "PRIVMSG #{@channel} :#{para}" 
         @match= true
+      else
+        @server.puts "PRIVMSG #{@channel} :Not an actual Class available or method. Try again!"
       end
       #@server.puts "PRIVMSG #{@channel} :Sorry didn't work!" if !paragraph
     end
 
     #word in document
     def getdocument(msg)
+      #refactor to if msg.match(/Hash|String|Enumerable|Array/i)
         if (msg.match(/Hash/i) || msg.match(/String/i) || msg.match(/Enumerable/i) || msg.match(/Array/i) )
 
         
@@ -56,19 +59,40 @@ class SearchBot
              doc=Nokogiri::HTML(open("http://ruby-doc.org/core-2.0.0/#{klass}.html"))
           rescue OpenURI::HTTPError => e 
               if e.message =="404 Not Found"
-                @server.puts "Error in typing."
+                @server.puts "PRIVMSG #{@channel} :Error in typing."
               else
                 raise e
              end
           end
 
-          value=((val[-1]).downcase)+"-method"
+        unless val[-1][-1]=="!" || val[-1][-1]=="?"
+
+          value=val[-1].downcase+"-method" unless val[1]==nil
+          answer=doc.css("div\##{value} p")[0] unless doc==nil
+        else
+
+          value=val[-1][/\w+/i] unless val[1]==nil
 
 
-          answer=doc.css("div\##{value} p")[0]
-          answer
+          regexp=val[-1][-1].unpack("H*")[0].upcase
+
+          value=value+"-#{regexp}"+"-method" unless val[1]==nil
+
+          answer=doc.css("div\##{value} p")[0] unless doc==nil
+          
 
         end
+        puts answer
+        answer
+
+
+          #value=((val[-1]).downcase)+"-method"
+
+
+          #answer=doc.css("div\##{value} p")[0]
+          #answer
+
+      end
       
     end
 
