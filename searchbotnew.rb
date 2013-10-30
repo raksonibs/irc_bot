@@ -11,7 +11,7 @@ class SearchBot
 
   def initialize(server = nil)
     @nick = "SearchBot"
-    @channel = "#birds"
+    @channel = "#bitmaker"
     @serverconnect = server
     @port=6667
     @greeting_prefix = "privmsg #bitmaker :"
@@ -23,7 +23,7 @@ class SearchBot
     @server.puts "USER bhellobot 0 * BHelloBot"
     @server.puts "NICK #{@nick}"
     @server.puts "JOIN #{@channel}"
-    @server.puts "PRIVMSG #{@channel} :Hello from IRB Bot"
+    @server.puts "PRIVMSG #{@channel} :Hello from SearchRubyDoc Bot"
     @server.puts "PRIVMSG #{@channel} :Type the class you want to search out of Hash, String, Array, or Enumerable, followed by the method For example, String upto:"
 
     until @server.eof? do
@@ -40,8 +40,8 @@ class SearchBot
       if (paragraph)
         @server.puts "PRIVMSG #{@channel} :#{para}" 
         @match= true
-      else
-        @server.puts "PRIVMSG #{@channel} :Not an actual Class available or method. Try again!"
+      #else
+        #@server.puts "PRIVMSG #{@channel} :Not an actual Class available or method. Try again!"
       end
       #@server.puts "PRIVMSG #{@channel} :Sorry didn't work!" if !paragraph
     end
@@ -65,7 +65,7 @@ class SearchBot
              end
           end
 
-        unless val[-1][-1]=="!" || val[-1][-1]=="?"
+        unless val[-1][-1]=="!" || val[-1][-1]=="?" || val[-1][-1]=="|"
 
           value=val[-1].downcase+"-method" unless val[1]==nil
           answer=doc.css("div\##{value} p")[0] unless doc==nil

@@ -54,9 +54,13 @@ class SearchBot
           raise e
         end
       end
+      p val[1][-1]
       unless val[1][-1]=="!" || val[1][-1]=="?"
         value=val[1]+"-method" unless val[1]==nil
         answer=doc.css("div\##{value} p")[0] unless doc==nil
+      elsif val[1][-1]=="|"
+        value=val[1][/\w+/i] unless val[1]==nil
+        regexp=val[1][-1].unpack("H*")[0].upcase
       else
         value=val[1][/\w+/i] unless val[1]==nil
         regexp=val[1][-1].unpack("H*")[0].upcase
